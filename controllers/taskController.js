@@ -42,23 +42,57 @@ exports.deleteTask = async (req, res) => {
     }
 };
 
+// exports.updateTask = async (req, res) => {
+//     try {
+//         const { completed, title } = req.body;
+       
+
+//         let task = await Task.findById(req.params.id);
+//         if (!task) return res.status(404).json({ msg: 'Task not found' });
+
+//         // Ensure the user owns the task
+//         if (task.user.toString() !== req.user.id) {
+//             return res.status(401).json({ msg: 'Unauthorized' });
+//         }
+
+//         task.completed = completed;
+//         task.title = title; // update the task title
+
+//         await task.save(); 
+//         res.json(task); // Return the updated task
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ msg: 'Server Error' });
+//     }
+// };
+
+
 exports.updateTask = async (req, res) => {
     try {
-        const { completed } = req.body;
-
-        let task = await Task.findById(req.params.id);
-        if (!task) return res.status(404).json({ msg: 'Task not found' });
-
-        // Ensure the user owns the task
-        if (task.user.toString() !== req.user.id) {
-            return res.status(401).json({ msg: 'Unauthorized' });
-        }
-
+      const { completed, title } = req.body; // Destructure both fields
+      const taskId = req.params.id;
+  
+      let task = await Task.findById(taskId);
+      if (!task) return res.status(404).json({ msg: 'Task not found' });
+  
+      // Ensure the user owns the task
+      if (task.user.toString() !== req.user.id) {
+        return res.status(401).json({ msg: 'Unauthorized' });
+      }
+  
+      // Update only the fields that are provided
+      if (completed !== undefined) {
         task.completed = completed;
-        await task.save();
-        res.json(task);
+      }
+      if (title !== undefined) {
+        task.title = title;
+      }
+  
+      await task.save();
+  
+      res.json(task); // Return the updated task
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ msg: 'Server Error' });
+      console.error('Error updating task:', err);
+      res.status(500).json({ msg: 'Server Error' });
     }
-};
+  };
